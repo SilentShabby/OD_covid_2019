@@ -6,6 +6,7 @@ from pandas.plotting import autocorrelation_plot
 from pyod.models.hbos import HBOS
 from pyod.models.iforest import IForest
 from sklearn.preprocessing import PowerTransformer
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as imgplt
 from matplotlib.ticker import PercentFormatter
@@ -20,13 +21,16 @@ from pyod.models.cblof import CBLOF
 # from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 # from pyod.models.lscp import LSCP
+
+
 FILE_LOCATION = '/home/notebooks/covid_19/DXY-COVID-19-Data/csv'
+matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
 
 CSV_FILES = ['DXYArea.csv', 'DXYNews.csv', 'DXYOverall.csv', 'DXYRumors.csv']
 url = "postgres://postgres:postgres@192.168.1.200:15432/wh_coronavirus"
 engine = create_engine(url)
 plt.rcParams['axes.unicode_minus'] = False
-FIG_SIZE = (15, 4)
+FIG_SIZE = (30, 8)
 
 
 def psql_insert_copy(table, conn, keys, data_iter):
