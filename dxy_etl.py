@@ -10,6 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as imgplt
 from matplotlib.ticker import PercentFormatter
+import datetime
 import seaborn as sns
 # Import all models
 # from pyod.models.abod import ABOD
@@ -22,14 +23,13 @@ from pyod.models.cblof import CBLOF
 from pyod.models.pca import PCA
 # from pyod.models.lscp import LSCP
 
-
 FILE_LOCATION = '/home/notebooks/covid_19/DXY-COVID-19-Data/csv'
-matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
+#matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
 
 CSV_FILES = ['DXYArea.csv', 'DXYNews.csv', 'DXYOverall.csv', 'DXYRumors.csv']
-url = "postgres://postgres:postgres@192.168.1.200:15432/wh_coronavirus"
-engine = create_engine(url)
-plt.rcParams['axes.unicode_minus'] = False
+#url = "postgres://postgres:postgres@192.168.1.200:15432/wh_coronavirus"
+#engine = create_engine(url)
+#plt.rcParams['axes.unicode_minus'] = False
 FIG_SIZE = (30, 8)
 
 
@@ -88,9 +88,9 @@ def show_1d(s, log_scale=False):
         ax[0].set(yscale='symlog')
         ax[1].set(yscale='symlog', xscale='symlog')
 
-    ax[0].set_title(f"{data_name}总体图")
-    ax[1].set_title(f"{data_name}时滞图")
-    ax[2].set_title(f"{data_name}自相关图")
+    ax[0].set_title(f"{data_name}Overall picture")
+    ax[1].set_title(f"{data_name}Time lag graph")
+    ax[2].set_title(f"{data_name}Autocorrelation graph")
 
 
 def OD_detect(df, id_col=None, contamination=0.05, trans_cols=None):
@@ -186,7 +186,7 @@ def MVOD_detect(df, id_col=None, contamination=0.05, is_transfer=True,is_db=True
         results_list.append(od_result)
 
     od_results_df = pd.concat(results_list, axis=0, ignore_index=True)
-    job_name = f'{pd.datetime.now():%H%M}'
+    job_name = f'{datetime.datetime.now():%H%M}'
     od_results_df['job_name'] = job_name
     if is_db:
         od_results_df.to_sql('t_ml', engine, if_exists='append',
@@ -222,7 +222,7 @@ def as_numeric(df, drop_first=False):
 
 def show_mvod_result(od_input, od_output, perplexity=3):
     X = od_input
-    c_label = od_output['label'].replace({0: "0-正常", 1: "1-异常"})
+    c_label = od_output['label'].replace({0: "0-normal", 1: "1-abnormal"})
     clf_list = od_output['name'].value_counts().sort_index().index
 
     tsne = TSNE(n_components=2, init='random',
@@ -236,21 +236,21 @@ def show_mvod_result(od_input, od_output, perplexity=3):
     ax = od_output.pivot_table(index='name', columns=c_label, values='qty', aggfunc='count').sort_index(
     ).plot.bar(stacked=True, table=True, ax=axes[0])
     ax.get_xaxis().set_visible(False)   # Hide Ticks
-    ax.set_title('异常点检出数量比较-按算法')
+    ax.set_title('Comparison of the number of outlier detections-by algorithm') # 异常点检出数量比较-按算法
     ax.legend(loc='lower right')
 
     ax = sns.swarmplot(data=od_output, y='qty', x='name',
                        hue=c_label, ax=axes[1], order=clf_list)
-    ax.set_title('异常检测结果数值比较 - 按算法')
-    ax.set_xlabel('疾控数据')
-    ax.set_ylabel('异常检测算法')
+    ax.set_title('Numerical comparison of anomaly detection results-by algorithm') # 异常检测结果数值比较 - 按算法
+    ax.set_xlabel('Disease control center data') # 疾控数据
+    ax.set_ylabel('Anomaly detection algorithm') # 异常检测算法
     ax.legend(loc='upper right')
 
     ax = sns.swarmplot(data=od_output, y='qty', x='name',
                        hue=c_label, ax=axes[2], order=clf_list)
-    ax.set_title('异常检测结果数值(log化)比较 - 按算法')
-    ax.set_xlabel('疾控数据')
-    ax.set_ylabel('异常检测算法')
+    ax.set_title('Anomaly detection result value (log) comparison-by algorithm') # 异常检测结果数值(log化)比较 - 按算法
+    ax.set_xlabel('Disease control center data') # 疾控数据
+    ax.set_ylabel('Anomaly detection algorithm') # 异常检测算法
     ax.set(yscale='symlog')
     ax.legend(loc='upper right')
 
@@ -258,10 +258,10 @@ def show_mvod_result(od_input, od_output, perplexity=3):
 
     for i, name in enumerate(clf_list):
         label = od_output.query(f'name=="{name}"')[
-            'label'].replace({0: "0-正常", 1: "1-异常"})
+            'label'].replace({0: "0-noraml", 1: "1-abnormal"})
         g = sns.scatterplot(
-            x=tsne_X[:, 0], y=tsne_X[:, 1], hue=label, ax=ax[i], hue_order=["0-正常", "1-异常"])
-        g.set_title(f'{name} 异常检测结果图')
+            x=tsne_X[:, 0], y=tsne_X[:, 1], hue=label, ax=ax[i], hue_order=["0-normal", "1-abnormal"])
+        g.set_title(f'{name} Anomaly detection result graph') # 
 
     return
 
